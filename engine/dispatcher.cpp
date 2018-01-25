@@ -221,10 +221,10 @@ bool Dispatcher::processWeb( char* method,
 	      fprintf(output, // pwd_input has empty name attribute, so it is excluded from the submit
 		      "<form method=\"post\" action=\"/\">" \
 		      "Password:" \
-		      "  <input type=\"password\" id=\"pwd_input\" />"	\
 		      "  <input type=\"hidden\" id=\"pwd_output\" name=\"password\" />" \
-		      "  <input type=\"submit\" onclick=\"document.getElementById('pwd_output').value = sha256(encodeURIComponent('%d' + " \
-		      " document.getElementById('pwd_input').value));\" class=\"button\" value=\"Login & accept conditions\" />" \
+		      "  <input type=\"password\" id=\"pwd_input\" " \
+		      "   onchange=\"document.getElementById('pwd_output').value = sha256(encodeURIComponent('%d' + value));\"/>" \
+		      "  <button type=\"submit\">Login & accept conditions</button>" \
 		      " &emsp; <font size='1'><a target='_blank' href='/legal.html'>Terms and conditions.</a></font>" \
 		      "</form>", session);
 
