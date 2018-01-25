@@ -97,7 +97,7 @@ The included apps come with prepared script `run.sh` which kills the previous ru
 
 # Using applications
 
-Nettomation was tested to be compatible with modern mainstream desktop and mobile browsers (HTML5 capable).
+Nettomation was tested to be compatible with modern mainstream desktop and mobile browsers.
 For example, if the application was started on local computer using port 8800,
 it can be opened using
 
