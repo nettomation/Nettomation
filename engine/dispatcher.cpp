@@ -219,11 +219,10 @@ bool Dispatcher::processWeb( char* method,
 	      // YOUR USER INTERFACE MUST ALSO PROVIDE A CONVENIENT AND PROMINENTLY VISIBLE FEATURE TO DISPLAY THESE LEGAL CONDITIONS 
 	      // (AS REQUIRED BY AGPLv3, SECTION 5d)
 	      fprintf(output, // pwd_input has empty name attribute, so it is excluded from the submit
-		      "<form method=\"post\" action=\"/\">" \
+		      "<form method=\"post\" action=\"/\" " \
+		      "onsubmit=\"document.getElementById('pwd').value = sha256(encodeURIComponent('%d'+document.getElementById('pwd').value));\">"\
 		      "Password:" \
-		      "  <input type=\"hidden\" id=\"pwd_output\" name=\"password\" />" \
-		      "  <input type=\"password\" id=\"pwd_input\" " \
-		      "   onchange=\"document.getElementById('pwd_output').value = sha256(encodeURIComponent('%d' + value));\"/>" \
+		      "  <input type=\"password\" id=\"pwd\" name=\"password\" />" \
 		      "  <button type=\"submit\">Login & accept conditions</button>" \
 		      " &emsp; <font size='1'><a target='_blank' href='/legal.html'>Terms and conditions.</a></font>" \
 		      "</form>", session);
