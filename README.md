@@ -97,11 +97,11 @@ The included apps come with prepared script `run.sh` which kills the previous ru
 
 # Using applications
 
-Nettomation was tested to be compatible with mainstream desktop and mobile browsers.
+Nettomation was tested to be compatible with modern mainstream desktop and mobile browsers (HTML5 capable).
 For example, if the application was started on local computer using port 8800,
 it can be opened using
 
-`firefox localhost:8800`
+`firefox http://localhost:8800/`
 
 One application can be viewed from multiple browser sessions simultaneously, 
 the sessions can partially recover from lost connections, the control loops in the application are not
