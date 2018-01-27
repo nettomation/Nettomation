@@ -257,6 +257,7 @@ bool Dispatcher::processWeb( char* method,
 
       // send the main page here
       fprintf(output,
+	      "<!doctype html>" \
 	      "<html>" \
 	      "<head>" \
 	      "  <script src=\"/dispatcher.js\"></script>");
