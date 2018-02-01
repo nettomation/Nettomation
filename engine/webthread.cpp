@@ -107,7 +107,8 @@ void WebThread::parseStream(int handle)
       if( ret < 1 )
 	{
 	  printf("Client disconnected too early.");
-	  return; //break;
+	  close(handle);
+	  return;
 	}
       length += ret;
 
@@ -415,10 +416,15 @@ void WebThread::parseStream(int handle)
 	    }
 
 	  int ret = read(handle,_buffer+length,BUFFSIZE-length);
-	  if( ret < 1 )
+	  if( ret == 0 )
 	    {
-	      printf("Client disconnected too early.");
-	      return;// break;
+	      break; // nothing to read
+	    }
+	  else if( ret < 1 )
+	    {
+	      printf("Client disconnected too early from POST.");
+	      close(handle);
+	      return;
 	    }
 	  length += ret;
 	}
