@@ -106,8 +106,8 @@ void WebThread::parseStream(int handle)
       int ret = read(handle,_buffer+length,BUFFSIZE-length);
       if( ret < 1 )
 	{
-	  //	  printf("Failed to read browser request");
-	  break;
+	  printf("Client disconnected too early.");
+	  return; //break;
 	}
       length += ret;
 
@@ -417,8 +417,8 @@ void WebThread::parseStream(int handle)
 	  int ret = read(handle,_buffer+length,BUFFSIZE-length);
 	  if( ret < 1 )
 	    {
-	      //	  printf("Failed to read browser request");
-	      break;
+	      printf("Client disconnected too early.");
+	      return;// break;
 	    }
 	  length += ret;
 	}

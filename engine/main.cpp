@@ -138,7 +138,7 @@ int main(int argc, char **argv)
       return 3;
     }
 
-  if ( listen(sock,511) != 0 ) // multiple sockets are accepted in parallel, so no need for long sequential queue
+  if ( listen(sock,50) != 0 ) // multiple sockets are accepted in parallel, so no need for long sequential queue
     {
       printf("Error listening to socket\n");
       return 4;
