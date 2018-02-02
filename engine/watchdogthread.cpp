@@ -23,6 +23,7 @@
 #include <iostream>
 #include <string.h>
 #include <unistd.h>
+#include <sys/socket.h>
 
 WatchdogThread::WatchdogThread(int time)
 {
@@ -48,7 +49,10 @@ void WatchdogThread::run()
 
 	  thread->cancel();
 	  if ( handle )
-	    close(handle);
+	    {
+	      shutdown(handle,SHUT_RDWR);
+	      close(handle);
+	    }
 	  _threadOfAge.erase(_ageOfThread[thread]);
 	  _ageOfThread.erase(thread);
 	  thread->start();
@@ -99,7 +103,10 @@ void WatchdogThread::respawnSlowestThread()
 
       thread->cancel();               // stop the thread
       if ( handle )
-	close(handle);                // close file handle
+	{
+	  shutdown(handle,SHUT_RDWR);
+	  close(handle);                // close file handle
+	}
       _previousThreads.erase(thread);
       _currentThreads.erase(thread);  // do not watch the thread until the tic() comes
       _threadOfAge.erase(_ageOfThread[thread]);

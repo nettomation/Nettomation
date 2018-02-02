@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <stdio.h>
+#include <sys/socket.h>
 
 void urlDecode( char* param )
 {
@@ -104,9 +105,17 @@ void WebThread::parseStream(int handle)
   while (length < BUFFSIZE)
     {
       int ret = read(handle,_buffer+length,BUFFSIZE-length);
-      if( ret < 1 )
+      if( ret == 0 )
 	{
 	  printf("Client disconnected too early.\n");
+	  shutdown(handle,SHUT_RDWR);
+	  close(handle);
+	  return;
+	}
+      else if( ret < 0 )
+	{
+	  printf("Error occured when receiving HTTP header.\n");
+	  shutdown(handle,SHUT_RDWR);
 	  close(handle);
 	  return;
 	}
@@ -420,9 +429,10 @@ void WebThread::parseStream(int handle)
 	    {
 	      break; // nothing to read
 	    }
-	  else if( ret < 1 )
+	  else if( ret < 0 )
 	    {
 	      printf("Client disconnected too early from POST.\n");
+	      shutdown(handle,SHUT_RDWR);
 	      close(handle);
 	      return;
 	    }
@@ -587,6 +597,7 @@ void WebThread::parseStream(int handle)
 
   //  printf("Finished stream no %d\n",handle);
 
+  shutdown(handle,SHUT_RDWR);
   fclose(output);
 }
 
