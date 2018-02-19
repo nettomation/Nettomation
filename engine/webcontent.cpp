@@ -131,14 +131,11 @@ void WebContent::renderWrapper(RenderingRecord& record)
 void WebContent::incrementalUpdate(ostream& stream, RenderingRecord& record, long long int oldTimeStamp)
 {
   // the update of cache depends on the timestamp of the cache, not on the timestamp of the client
+  SmartLock lock(record); // avoid double work by serializing - do not reenter the renderWrapper
   if ( record._timestamp < _timeStampContent ) // record needs update
     {
-      SmartLock lock(record); // avoid double work by serializing - do not reenter the renderWrapper
-      if ( record._timestamp < _timeStampContent ) // record still needs update
-	{
-	  record.clearRecords(); // deallocate old tree
-	  renderWrapper(record); // implicitly sets also record._timestamp
-	}
+      record.clearRecords(); // deallocate old tree
+      renderWrapper(record); // implicitly sets also record._timestamp
     }
 
   if ( _timeStampVisibility > oldTimeStamp )
