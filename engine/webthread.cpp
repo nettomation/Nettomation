@@ -109,7 +109,10 @@ void WebThread::parseStream(int handle)
 	{
 	  shutdown(handle,SHUT_RDWR);
 	  if ( length > 0 )
-	    printf("Client disconnected in the middle of communication.\n");
+	    {
+	      printf("Client disconnected in the middle of communication.\n");
+	      // close(handle); // for some reason the stability is better if we keep the handle open (this happens rarely, so the leakage of resources is negligible)
+	    }
 	  else
 	    {
 	      printf("Client disconnected without communicating.\n"); // this sometimes happens in chrome/chromium
