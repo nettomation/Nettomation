@@ -107,9 +107,14 @@ void WebThread::parseStream(int handle)
       int ret = read(handle,_buffer+length,BUFFSIZE-length);
       if( ret == 0 )
 	{
-	  printf("Client disconnected too early.\n");
 	  shutdown(handle,SHUT_RDWR);
-	  //	  close(handle);
+	  if ( length > 0 )
+	    printf("Client disconnected in the middle of communication.\n");
+	  else
+	    {
+	      printf("Client disconnected without communicating.\n"); // this sometimes happens in chrome/chromium
+	      close(handle);
+	    }
 	  return;
 	}
       else if( ret < 0 )
