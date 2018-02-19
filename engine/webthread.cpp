@@ -109,7 +109,7 @@ void WebThread::parseStream(int handle)
 	{
 	  printf("Client disconnected too early.\n");
 	  shutdown(handle,SHUT_RDWR);
-	  close(handle);
+	  //	  close(handle);
 	  return;
 	}
       else if( ret < 0 )
