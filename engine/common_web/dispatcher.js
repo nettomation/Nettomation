@@ -51,7 +51,7 @@ function sendFileToDispatcher(owner,name,index1,index2,filename)
 function connectionLost()
 {
     nrPendingTimeouts = nrPendingTimeouts + 1;
-    if ( nrPendingTimeouts > 1 )
+    if ( nrPendingTimeouts == 3 ) // warn the user after 2 timeouts
 	alert("Connection with server lost");
     updateFromDispatcher(); // try again after user clicks OK
 }
