@@ -51,14 +51,17 @@ function sendFileToDispatcher(owner,name,index1,index2,filename)
 function connectionLost()
 {
     nrPendingTimeouts = nrPendingTimeouts + 1;
-    if ( nrPendingTimeouts == 3 ) // warn the user after 2 timeouts
-	alert("Connection with server lost");
     updateFromDispatcher(); // try again after user clicks OK
 }
 
 function updateFromDispatcher()
 {
     clearTimeout(handleWarning);
+
+    if ( nrPendingTimeouts > 0 ) // warn the user about disconnect by changing the background color
+	document.body.style.backgroundColor = "plum";
+    else
+	document.body.style.backgroundColor = "white"; 	
 
     var topHead = document.getElementsByTagName('head').item(0);
     if ( refreshCounter > 0 )
