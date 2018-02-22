@@ -397,8 +397,11 @@ bool Dispatcher::processWeb( char* method,
       fprintf(output,
 	      "HTTP/1.0 200 OK\r\n" \
 	      "Content-Type: application/javascript\r\n" \
-	      "\r\n sessionId = %d; nrPendingTimeouts = 0; %s ; timestamp=%lld ; clearTimeout(handleWarning); setTimeout(updateFromDispatcher,100);",
+	      "\r\n nrPendingTimeouts = 0; if ((%lld > timestamp) || (sessionId != %d)) { sessionId = %d; %s ; timestamp=%lld; }; clearTimeout(handleWarning); setTimeout(updateFromDispatcher,100);",
+	      // avoid timestap moving backwards from out-of-order data
 	      // first javascript part is hardcoded
+	      newTimeStamp,
+	      session,
 	      session,
 	      buffer.c_str(),
 	      newTimeStamp ); // return a javascript which updates the divs
