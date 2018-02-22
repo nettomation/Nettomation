@@ -58,7 +58,7 @@ function updateFromDispatcher()
 {
     clearTimeout(handleWarning);
 
-    if ( nrPendingTimeouts > 0 ) // warn the user about disconnect by changing the background color
+    if ( nrPendingTimeouts > 1 ) // warn the user about disconnect by changing the background color
 	document.body.style.backgroundColor = "plum";
     else
 	document.body.style.backgroundColor = "white"; 	
