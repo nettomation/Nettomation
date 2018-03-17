@@ -23,6 +23,7 @@
 
 pthread_mutex_t* SmartLock::_globalMutex = NULL;
 std::map< void*, pthread_mutex_t* > SmartLock::_mutexes;
+std::map< void*, size_t > SmartLock::_nrWaiting;
 
 void SmartLock::lockPointer(void* v)
 { 
@@ -43,6 +44,7 @@ void SmartLock::lockPointer(void* v)
     }
   else
     m = _mutexes[v];
+  _nrWaiting[v]++;
   pthread_mutex_unlock(_globalMutex);
   // global unlock
   pthread_mutex_lock(m);
@@ -54,7 +56,15 @@ void SmartLock::unlockPointer(void* v)
   // global lock
   pthread_mutex_lock(_globalMutex);
   m = _mutexes[v];
+  pthread_mutex_unlock(m);
+  _nrWaiting[v]--;
+  if ( _nrWaiting[v] == 0 )
+    {
+      pthread_mutex_destroy(m);
+      delete m;
+      _mutexes.erase(v);
+      _nrWaiting.erase(v);
+    }
   // global unlock
   pthread_mutex_unlock(_globalMutex);
-  pthread_mutex_unlock(m);
 }

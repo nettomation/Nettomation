@@ -29,6 +29,7 @@ class SmartLock {
 private:
   static pthread_mutex_t* _globalMutex;
   static std::map< void*, pthread_mutex_t* > _mutexes;
+  static std::map< void*, size_t > _nrWaiting;
 
   void* _data;
 
