@@ -152,7 +152,10 @@ int main(int argc, char **argv)
   freopen("error.log","w",stderr);  // redirect stderr to file
   setvbuf(stdout, NULL, _IONBF, 0); // disable buffering of stdout
 
-  printf("Date: %s %s\n",__DATE__,__TIME__);
+  time_t curtime;
+  time(&curtime);
+
+  printf("Started on %s",ctime(&curtime));
   printf("HTTP server listening on ip %s, port %d\n", ip, port);
 
   SharedQueue<int>* sharedQueue = new SharedQueue<int>();
