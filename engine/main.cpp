@@ -148,8 +148,8 @@ int main(int argc, char **argv)
 
   srand ( time(NULL) );
 
-  freopen("output.log","w",stdout); // redirect stdout to file
-  freopen("error.log","w",stderr);  // redirect stderr to file
+  freopen("output.log","a",stdout); // redirect stdout to file
+  freopen("error.log","a",stderr);  // redirect stderr to file
   setvbuf(stdout, NULL, _IONBF, 0); // disable buffering of stdout
 
   time_t curtime;
