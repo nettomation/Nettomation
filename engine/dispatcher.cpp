@@ -219,7 +219,7 @@ bool Dispatcher::processWeb( char* method,
 	      // YOUR USER INTERFACE MUST ALSO PROVIDE A CONVENIENT AND PROMINENTLY VISIBLE FEATURE TO DISPLAY THESE LEGAL CONDITIONS 
 	      // (AS REQUIRED BY AGPLv3, SECTION 5d)
 	      fprintf(output, // pwd_input has empty name attribute, so it is excluded from the submit
-		      "<form method=\"post\" action=\"/\" " \
+		      "<form method=\"get\" action=\"/\" " \
 		      "onsubmit=\"document.getElementById('pwd').value = sha256(encodeURIComponent('%d'+document.getElementById('pwd').value));\">"\
 		      "Password:" \
 		      "  <input type=\"password\" id=\"pwd\" name=\"password\" />" \
