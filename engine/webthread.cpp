@@ -107,24 +107,19 @@ void WebThread::parseStream(int handle)
       int ret = read(handle,_buffer+length,BUFFSIZE-length);
       if( ret == 0 )
 	{
-	  shutdown(handle,SHUT_RDWR);
 	  if ( length > 0 )
 	    {
 	      printf("Client disconnected in the middle of communication.\n");
-	      // close(handle); // for some reason the stability is better if we keep the handle open (this happens rarely, so the leakage of resources is negligible)
 	    }
 	  else
 	    {
 	      printf("Client disconnected without communicating.\n"); // this sometimes happens in chrome/chromium
-	      close(handle);
 	    }
 	  return;
 	}
       else if( ret < 0 )
 	{
 	  printf("Error occured when receiving HTTP header.\n");
-	  shutdown(handle,SHUT_RDWR);
-	  close(handle);
 	  return;
 	}
       length += ret;
@@ -440,8 +435,6 @@ void WebThread::parseStream(int handle)
 	  else if( ret < 0 )
 	    {
 	      printf("Client disconnected too early from POST.\n");
-	      shutdown(handle,SHUT_RDWR);
-	      close(handle);
 	      return;
 	    }
 	  length += ret;
@@ -617,7 +610,7 @@ void WebThread::run()
       _watchdog->tac(this);
       _watchdog->atomicCloseFileIfOpen(_file); // if file was read, close the file and set the pointer to null
       shutdown(handle,SHUT_RDWR);
-      close(handle); // already closed by fclose(output) inside parseStream
+      close(handle);
     }
   //  printf("WebThread terminated\n");
 }
