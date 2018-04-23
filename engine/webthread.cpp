@@ -604,9 +604,6 @@ void WebThread::parseStream(int handle)
   fflush(output);
 
   //  printf("Finished stream no %d\n",handle);
-
-  shutdown(handle,SHUT_RDWR);
-  fclose(output);
 }
 
 void WebThread::run()
@@ -619,7 +616,8 @@ void WebThread::run()
       parseStream(handle);
       _watchdog->tac(this);
       _watchdog->atomicCloseFileIfOpen(_file); // if file was read, close the file and set the pointer to null
-      //      close(handle); // already closed by fclose(output) inside parseStream
+      shutdown(handle,SHUT_RDWR);
+      close(handle); // already closed by fclose(output) inside parseStream
     }
   //  printf("WebThread terminated\n");
 }
