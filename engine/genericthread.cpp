@@ -23,7 +23,11 @@
 
 void GenericThread::start()
 {
-  pthread_create(&_thread,NULL,_launcher,(void*)this);
+  pthread_attr_t tattr;
+  pthread_attr_init(&tattr);
+  pthread_attr_setdetachstate(&tattr,PTHREAD_CREATE_DETACHED);
+  pthread_create(&_thread,&tattr,_launcher,(void*)this);
+  pthread_attr_destroy(&tattr);
 }
 
 void* GenericThread::_launcher( void* genericThread )
