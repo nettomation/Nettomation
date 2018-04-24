@@ -448,7 +448,9 @@ void WebThread::parseStream(int handle)
     }
 
   FILE* output = fdopen(handle,"w");
-
+  if (!output)
+    return; 
+    
   if ( (length == BUFFSIZE) || syntaxError || (fileName == NULL) )
     {
       //      printf("Syntax error\n");
@@ -595,6 +597,7 @@ void WebThread::parseStream(int handle)
     }
 
   fflush(output);
+  fclose(output);
 
   //  printf("Finished stream no %d\n",handle);
 }
