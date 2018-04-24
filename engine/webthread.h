@@ -35,16 +35,20 @@ class WebThread : public GenericThread {
  protected:
   char        _buffer[BUFFSIZE+1]; // this limits the max size of a request, including the POST body
   char        _fbuf[FBSIZE];
-  FILE*       _file;
+
+  int         _handle; // this is the TCP-IP socket
+  FILE*       _output; // this is the duplicated socket, wrapped as regular file descriptor for convenience
+  FILE*       _file;   // this is for reading the external files
 
  private:
   SharedQueue<int>* _sharedQueue;
   WatchdogThread*   _watchdog;
   Dispatcher*       _dispatcher;
   virtual void run();
-  virtual void parseStream(int handle);
+  virtual void parseStream();
  public:
   WebThread(SharedQueue<int>* sharedQueue, WatchdogThread* watchdog, Dispatcher* dispatcher);
+  virtual void cleanup();
 };
 
 #endif // WEBTHREAD_H_

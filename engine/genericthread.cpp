@@ -38,4 +38,5 @@ void* GenericThread::_launcher( void* genericThread )
 void GenericThread::cancel()
 {
   pthread_cancel(_thread);
+  cleanup();
 }

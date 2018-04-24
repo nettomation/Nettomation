@@ -32,6 +32,7 @@ class GenericThread  {
  public:
   void start();
   void cancel();
+  virtual void cleanup() {} // do cleanup work, e.g. free file descriptors
 };
 
 #endif // GENERICTHREAD_H_

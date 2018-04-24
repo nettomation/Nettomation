@@ -81,13 +81,15 @@ void urlDecode( char* param )
 
 WebThread::WebThread(SharedQueue<int>* sharedQueue, WatchdogThread* watchdog, Dispatcher* dispatcher)
 {
-  _file = NULL;
+  _handle = 0;
+  _file   = NULL;
+  _output = NULL;
   _sharedQueue = sharedQueue;
   _watchdog = watchdog;
   _dispatcher = dispatcher;
 }
 
-void WebThread::parseStream(int handle)
+void WebThread::parseStream()
 {
   int   state = 0;         // finite-state automaton
   char* method = _buffer;   // method always starts at the beginning, also in Apache
@@ -97,14 +99,14 @@ void WebThread::parseStream(int handle)
   std::vector< std::pair< const char*, const char* > > params;
   std::vector< std::pair< const char*, const char* > > fields;
 
-  //  printf("Parsing header of stream no %d\n",handle);
+  //  printf("Parsing header of stream no %d\n",_handle);
   int i = 0;
   int length = 0;
   bool endReached = false;
   bool syntaxError = false;
   while (length < BUFFSIZE)
     {
-      int ret = read(handle,_buffer+length,BUFFSIZE-length);
+      int ret = read(_handle,_buffer+length,BUFFSIZE-length);
       if( ret == 0 )
 	{
 	  if ( length > 0 )
@@ -427,7 +429,7 @@ void WebThread::parseStream(int handle)
 	      break;
 	    }
 
-	  int ret = read(handle,_buffer+length,BUFFSIZE-length);
+	  int ret = read(_handle,_buffer+length,BUFFSIZE-length);
 	  if( ret == 0 )
 	    {
 	      break; // nothing to read
@@ -447,14 +449,14 @@ void WebThread::parseStream(int handle)
       */
     }
 
-  FILE* output = fdopen(handle,"w");
-  if (!output)
+  _output = fdopen(_handle,"w");
+  if (!_output)
     return; 
     
   if ( (length == BUFFSIZE) || syntaxError || (fileName == NULL) )
     {
       //      printf("Syntax error\n");
-      fprintf(output, 
+      fprintf(_output, 
 	      "HTTP/1.0 400 Bad Request\r\n" \
 	      "Content-Type: text/html\r\n" \
 	      "\r\n" \
@@ -480,7 +482,7 @@ void WebThread::parseStream(int handle)
       if ( session == -1 ) // session Id not found yet
 	{
 	  // save the random session and refresh the page immediately
-	  fprintf(output,
+	  fprintf(_output,
 		  "HTTP/1.0 200 OK\r\n"		\
 		  "Set-Cookie: session=%d\r\n"	\
 		  "Content-Type: text/html\r\n" \
@@ -491,7 +493,7 @@ void WebThread::parseStream(int handle)
 		  "</head><body></body>"						\
 		  "</html>",rand());
 	}
-      else if ( _dispatcher->processWeb(method, fileName, params, fields, output, session ) )
+      else if ( _dispatcher->processWeb(method, fileName, params, fields, _output, session ) )
 	{
 	  // served by user code
 	}
@@ -542,21 +544,21 @@ void WebThread::parseStream(int handle)
 
 	  if ( mimeType )
 	    {
-	      fprintf(output,
+	      fprintf(_output,
 		      "HTTP/1.0 200 OK\r\n" \
 		      "Content-Type: %s\r\n" \
 		      "\r\n",mimeType);
 
 	      //      printf("Static file served: %s\n", fileName);
 	      while (size_t size = fread(_fbuf, 1, FBSIZE, _file)) {
-		fflush(output);
-		fwrite(_fbuf, 1, size, output);
+		fflush(_output);
+		fwrite(_fbuf, 1, size, _output);
 	      }
 	    }
 	  else
 	    {
 	      //      printf("File type not allowed/supported: %s\n", fileName);
-	      fprintf(output,
+	      fprintf(_output,
 		      "HTTP/1.0 403 Forbidden\r\n"  \
 		      "Content-Type: text/html\r\n" \
 		      "\r\n"   \
@@ -568,7 +570,7 @@ void WebThread::parseStream(int handle)
 	}
       else // fileName not found, send the error response with some debugging info
 	{
-	  fprintf(output,
+	  fprintf(_output,
 		  "HTTP/1.0 404 Not Found\r\n" \
 		  "Content-Type: text/html\r\n" \
 		  "\r\n"   \
@@ -577,43 +579,60 @@ void WebThread::parseStream(int handle)
 		  "<body><h1>File or directory not found.</h1>" \
 		  " <h2>Please check the details below:</h2>");
 
-	  fprintf(output,"<h3>method</h3> %s<br>", method);
-	  fprintf(output,"<h3>fileName</h3> %s<br>", fileName);
+	  fprintf(_output,"<h3>method</h3> %s<br>", method);
+	  fprintf(_output,"<h3>fileName</h3> %s<br>", fileName);
 	  for ( int i = 0; i < params.size(); i++ )
 	    {
-	      fprintf(output,"<h3>param #%d</h3> %s = %s<br>",i,params[i].first,params[i].second);
+	      fprintf(_output,"<h3>param #%d</h3> %s = %s<br>",i,params[i].first,params[i].second);
 	    }
 	  for ( int i = 0; i < fields.size(); i++ )
 	    {
-	      fprintf(output,"<h3>field #%d</h3> %s : %s<br>",i,fields[i].first,fields[i].second);
+	      fprintf(_output,"<h3>field #%d</h3> %s : %s<br>",i,fields[i].first,fields[i].second);
 	    }
 
-	  fprintf(output,"<h3>session</h3>%d<br>",session);
+	  fprintf(_output,"<h3>session</h3>%d<br>",session);
 
-	  fprintf(output,
+	  fprintf(_output,
 		  "</body>"		       \
 		  "</html>");
 	}
     }
 
-  fflush(output);
-  fclose(output);
+  fflush(_output);
 
-  //  printf("Finished stream no %d\n",handle);
+  //  printf("Finished stream no %d\n",_handle);
 }
 
 void WebThread::run()
 {
   //  printf("WebThread started\n");
-  _watchdog->atomicCloseFileIfOpen(_file); // close file when stalled thread was forced to terminate during previous file reading
-  while( int handle = _sharedQueue->pop() )
+  while ( int handle = _sharedQueue->pop() )
     {
-      _watchdog->tic(this,handle);
-      parseStream(handle);
+      // initialize variables used for cleanup
+      _handle = handle;
+      _file   = NULL;
+      _output = NULL;
+      _watchdog->tic(this);
+      parseStream();
       _watchdog->tac(this);
-      _watchdog->atomicCloseFileIfOpen(_file); // if file was read, close the file and set the pointer to null
-      shutdown(handle,SHUT_RDWR);
-      close(handle);
+      cleanup(); // this is the regular way to call cleanup; the other way is inside cancel()
     }
   //  printf("WebThread terminated\n");
+}
+
+void WebThread::cleanup()
+{
+  if ( _file )
+    fclose(_file);
+  if ( _handle )
+    {
+      shutdown(_handle,SHUT_RDWR);
+      if ( _output )
+	fclose(_output); // closing _output also closes _handle
+      else
+	close(_handle); // _handle was not duplicated to _output yet
+    }
+  _handle = 0;
+  _file   = NULL;
+  _output = NULL;
 }

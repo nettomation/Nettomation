@@ -36,25 +36,21 @@ void WatchdogThread::run()
   while(1)
     {
       pthread_mutex_lock(&_accessMutex);
-      std::map< GenericThread*, int > canceledThreads;
+      std::set< GenericThread* > canceledThreads;
       std::swap(canceledThreads,_previousThreads);
       std::swap(_previousThreads,_currentThreads);
       // perform cancellation after unlocking mutextes
-      for ( std::map< GenericThread*, int >::iterator it = canceledThreads.begin(); it != canceledThreads.end(); ++it )
+      for ( std::set< GenericThread* >::iterator it = canceledThreads.begin(); it != canceledThreads.end(); ++it )
 	{
 	  printf("Watchdog detected stalled thread\n");
 
-	  GenericThread* thread = it->first;
-	  int handle = it->second;
+	  GenericThread* thread = *it;
 
 	  thread->cancel();
-	  if ( handle )
-	    {
-	      shutdown(handle,SHUT_RDWR);
-	      close(handle);
-	    }
+
 	  _threadOfAge.erase(_ageOfThread[thread]);
 	  _ageOfThread.erase(thread);
+	  
 	  thread->start();
 	}
       pthread_mutex_unlock(&_accessMutex);
@@ -62,12 +58,12 @@ void WatchdogThread::run()
     }
 }
 
-void WatchdogThread::tic( GenericThread* thread, int handle )
+void WatchdogThread::tic( GenericThread* thread )
 {
   pthread_mutex_lock(&_accessMutex);
   _counter++;
-  _currentThreads[thread] = handle;
-  _ageOfThread[thread]    = _counter;
+  _currentThreads.insert(thread);
+  _ageOfThread[thread] = _counter;
   _threadOfAge[_counter]  = thread;
   pthread_mutex_unlock(&_accessMutex);
 }
@@ -95,36 +91,15 @@ void WatchdogThread::respawnSlowestThread()
       printf("Watchdog is respawning the slowest thread\n");
 
       GenericThread* thread = _threadOfAge.begin()->second; // pick the slowest(oldest) thread
-      int handle;
-      if ( _currentThreads.find(thread) != _currentThreads.end() )
-	handle = _currentThreads[thread];
-      else
-	handle = _previousThreads[thread];
 
       thread->cancel();               // stop the thread
-      if ( handle )
-	{
-	  shutdown(handle,SHUT_RDWR);
-	  close(handle);                // close file handle
-	}
+
       _previousThreads.erase(thread);
       _currentThreads.erase(thread);  // do not watch the thread until the tic() comes
       _threadOfAge.erase(_ageOfThread[thread]);
       _ageOfThread.erase(thread);
+      
       thread->start();                // restart the thread
     }
   pthread_mutex_unlock(&_accessMutex);
-}
-
-void WatchdogThread::atomicCloseFileIfOpen(FILE*& file)
-{
-  // this is atomic operation, closing and null-ing are inseparable
-  pthread_mutex_lock(&_accessMutex);
-  if (file)
-    {
-      fclose(file);
-      file = NULL;
-    }
-  pthread_mutex_unlock(&_accessMutex);
-  
 }

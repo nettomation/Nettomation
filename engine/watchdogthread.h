@@ -25,20 +25,21 @@
 #include "genericthread.h"
 #include <stdio.h>
 #include <map>
+#include <set>
 
 class WatchdogThread : public GenericThread {
  private:
   unsigned long long         _counter;
   int                        _time;
   pthread_mutex_t            _accessMutex;  
-  std::map< GenericThread*, int >                  _previousThreads;
-  std::map< GenericThread*, int >                  _currentThreads;
+  std::set< GenericThread* > _previousThreads;
+  std::set< GenericThread* > _currentThreads;
   std::map< GenericThread*, unsigned long long >   _ageOfThread;
   std::map< unsigned long long, GenericThread* >   _threadOfAge;
   virtual void run();
  public:
   WatchdogThread(int time);
-  void tic( GenericThread* thread, int handle );
+  void tic( GenericThread* thread );
   void tac( GenericThread* thread );
   void respawnSlowestThread();
   void atomicCloseFileIfOpen(FILE*& file);
