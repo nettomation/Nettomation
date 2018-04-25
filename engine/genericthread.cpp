@@ -20,8 +20,6 @@
  */
 
 #include "genericthread.h"
-#include <stdio.h>
-#include <stdarg.h>
 
 void GenericThread::start()
 {
@@ -41,16 +39,4 @@ void GenericThread::cancel()
 {
   pthread_cancel(_thread);
   cleanup();
-}
-
-int GenericThread::timeprintf( const char * format, ... ) // prepends date
-{
-  time_t curtime;
-  time(&curtime);
-  ::printf("%s ",ctime(&curtime));
-  va_list args;
-  va_start(args, format);
-  int r = ::printf(format,args);
-  va_end(args);
-  return r;
 }
