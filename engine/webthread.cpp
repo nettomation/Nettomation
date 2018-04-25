@@ -111,17 +111,17 @@ void WebThread::parseStream()
 	{
 	  if ( length > 0 )
 	    {
-	      printf("Client disconnected in the middle of communication.\n");
+	      timeprintf("Client disconnected in the middle of communication.\n");
 	    }
 	  else
 	    {
-	      printf("Client disconnected without communicating.\n"); // this sometimes happens in chrome/chromium
+	      timeprintf("Client disconnected without communicating.\n"); // this sometimes happens in chrome/chromium
 	    }
 	  return;
 	}
       else if( ret < 0 )
 	{
-	  printf("Error occured when receiving HTTP header.\n");
+	  timeprintf("Error occured when receiving HTTP header.\n");
 	  return;
 	}
       length += ret;
@@ -436,7 +436,7 @@ void WebThread::parseStream()
 	    }
 	  else if( ret < 0 )
 	    {
-	      printf("Client disconnected too early from POST.\n");
+	      timeprintf("Client disconnected too early from POST.\n");
 	      return;
 	    }
 	  length += ret;

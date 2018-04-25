@@ -42,7 +42,7 @@ void WatchdogThread::run()
       // perform cancellation after unlocking mutextes
       for ( std::set< GenericThread* >::iterator it = canceledThreads.begin(); it != canceledThreads.end(); ++it )
 	{
-	  printf("Watchdog detected stalled thread\n");
+	  timeprintf("Watchdog detected stalled thread\n");
 
 	  GenericThread* thread = *it;
 
@@ -88,7 +88,7 @@ void WatchdogThread::respawnSlowestThread()
   pthread_mutex_lock(&_accessMutex);
   if ( !_threadOfAge.empty() )
     {
-      printf("Watchdog is respawning the slowest thread\n");
+      timeprintf("Watchdog is respawning the slowest thread\n");
 
       GenericThread* thread = _threadOfAge.begin()->second; // pick the slowest(oldest) thread
 

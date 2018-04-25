@@ -33,6 +33,7 @@ class GenericThread  {
   void start();
   void cancel();
   virtual void cleanup() {} // do cleanup work, e.g. free file descriptors
+  int timeprintf ( const char * format, ... ); // prepends date
 };
 
 #endif // GENERICTHREAD_H_
