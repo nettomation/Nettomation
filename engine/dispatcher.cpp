@@ -211,7 +211,7 @@ bool Dispatcher::processWeb( char* method,
 		      "<html>" \
 		      "<head>" \
 		      "  <title>Login page</title>" \
-		      "  <script src=\"/sha256.js\"></script>"	\
+		      "  <script src=\"sha256.js\"></script>"	\
 		      "</head>" \
 		      "<body>" );
 
@@ -224,7 +224,7 @@ bool Dispatcher::processWeb( char* method,
 		      "Password:" \
 		      "  <input type=\"password\" id=\"pwd\" name=\"password\" />" \
 		      "  <button type=\"submit\">Login & accept conditions</button>" \
-		      " &emsp; <font size='1'><a target='_blank' href='/legal.html'>Terms and conditions.</a></font>" \
+		      " &emsp; <font size='1'><a target='_blank' href='legal.html'>Terms and conditions.</a></font>" \
 		      "</form>", session);
 
 	      // THE FOLLOWING HTML STRING (INCLUDING THE DONATION LINK) IS THE COPYRIGHT PART OF THE "Appropriate Legal Notice" ACCORDING TO AGPLv3, SECTION 0
@@ -260,7 +260,7 @@ bool Dispatcher::processWeb( char* method,
 	      "<!doctype html>" \
 	      "<html>" \
 	      "<head>" \
-	      "  <script src=\"/dispatcher.js\"></script>");
+	      "  <script src=\"dispatcher.js\"></script>");
 
       ostringstream stream;
       WebContent::renderHeader(stream);
@@ -277,7 +277,7 @@ bool Dispatcher::processWeb( char* method,
       // (AS REQUIRED BY AGPLv3, SECTION 5d)
       if ( _password[0] == 0 ) // if password not empty, then the link to terms and conditions was already in the login
 	fprintf(output,
-		"<div align='right'><font size='1'><a target='_blank' href='/legal.html'>Terms and conditions.</a></font></div>");
+		"<div align='right'><font size='1'><a target='_blank' href='legal.html'>Terms and conditions.</a></font></div>");
 
       //      _webTop->renderWrapper(*_renderingTop);
       fprintf(output,"%s",generateDivStart(_renderingTop->uniqueId(),false).c_str());

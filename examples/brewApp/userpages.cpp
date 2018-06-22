@@ -111,8 +111,8 @@ AUTO_REGISTER_CONTENT(TemperatureReader,"TEMPERATUREREADER",INNER);
 void WebContent::renderHeader( ostream& stream ) // this is a static function
 {
   stream << "<title>Nettomation brewing demo</title>"
-	 << "<script src=\"/dygraph.min.js\"></script>"
-	 << "<link rel=\"stylesheet\" src=\"/dygraph.css\" />";
+	 << "<script src=\"dygraph.min.js\"></script>"
+	 << "<link rel=\"stylesheet\" src=\"dygraph.css\" />";
 }
 
 
@@ -1067,7 +1067,7 @@ void BrewingPage::render( ostream& stream )
   stream << "<br><br>Import: <input type='file' onchange=" << generateFileCallback("load_recipe",1,1) << "/><br>";
   
   if ( _recipeSaved )
-    stream << "Export: <a href='/recipe.txt' target='_blank'>Download recipe</a>";
+    stream << "Export: <a href='recipe.txt' target='_blank'>Download recipe</a>";
   else
     stream << "Export: <button onclick=" << generateCallback("save_recipe",1,1) << ">Capture recipe</button>";
 
