@@ -111,8 +111,8 @@ AUTO_REGISTER_CONTENT(TemperatureReader,"TEMPERATUREREADER",INNER);
 void WebContent::renderHeader( ostream& stream ) // this is a static function
 {
   stream << "<title>Nettomation brewing demo</title>"
-	 << "<script src=\"http://dygraphs.com/2.0.0/dygraph.min.js\"></script>"
-	 << "<link rel=\"stylesheet\" src=\"http://dygraphs.com/2.0.0/dygraph.css\" />";
+	 << "<script src=\"/dygraph.min.js\"></script>"
+	 << "<link rel=\"stylesheet\" src=\"/dygraph.css\" />";
 }
 
 
