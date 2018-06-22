@@ -103,6 +103,8 @@ string WebContent::renderContent(const string& name)
     // for debugging show problems on the page instead of re-throwing
     if ( child == this )
       return "Problem: '" + name + "' cannot render itself!";
+    if ( child == NULL )
+      return "Problem: '" + name + "' is not registered!";      
     RenderingRecord* record = new RenderingRecord(child);
     _renderingRecords->push_back(record);
     child->renderWrapper(*record);
