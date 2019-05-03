@@ -82,8 +82,12 @@ function updateFromDispatcher()
     topHead.appendChild(newScript);
 }
 
-handleWarning = setTimeout(connectionLost,6000); // first timeout
-setTimeout(updateFromDispatcher,500);            // first refresh
+function startUpdates() {
+    handleWarning = setTimeout(connectionLost,6000); // first timeout
+    setTimeout(updateFromDispatcher,500);            // first refresh
+}
+
+window.onload = startUpdates;
 
 /*
   The code from dispatcher should contain:
