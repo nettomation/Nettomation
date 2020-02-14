@@ -47,6 +47,7 @@ class Dispatcher : public GenericThread, public AbstractDispatcher {
   RenderingRecord* _renderingTop;
 
   int            _serializer; // SmartLock to avoid interplay between dispatchCallback and renderIncremental
+  long long int  _contextId;  // random number to make sure that the caching is invalidated after server restart
 
 
   map<string,WebContent*>  _map;

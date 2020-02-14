@@ -41,17 +41,18 @@
 #include <sstream>
 
 Dispatcher::Dispatcher(char* password)
-{ 
+{
   _timeStamp = 1;
   _webTop = NULL;
   _renderingTop = NULL;
   _password = password;
+  _contextId = rand(); // random number to make sure that the caching is invalidated after server restart
 }
 
 void Dispatcher::mainLoop()
 {
   _webTop = new WebTop(this); // cannot be created in the constructor, because it needs completed dispatcher
-  _renderingTop = new RenderingRecord(_webTop);
+  _renderingTop = new RenderingRecord(_webTop, 1581700000); // unique number, the same for all contexts, to ensure non-collision
   _webTop->show();
   _webTop->start();
 
@@ -304,6 +305,7 @@ bool Dispatcher::processWeb( char* method,
       int         index2;
       const char* value = "";
       const char* counter = "";
+      long long int oldContextId = -1;
       for ( int i = 0; i < params.size(); i++ )
 	{
 	  if ( strcmp( params[i].first, "OWNER" ) == 0 )
@@ -318,19 +320,22 @@ bool Dispatcher::processWeb( char* method,
 	    value = params[i].second;
 	  else if ( strcmp( params[i].first, "COUNTER" ) == 0 )
 	    counter = params[i].second;
+	  else if ( strcmp( params[i].first, "CONTEXT" ) == 0 )
+	    oldContextId = atoll(params[i].second);
 	}
-      dispatchCallback(session, owner, name, index1, index2, value);
+
+      if ( oldContextId == _contextId ) // otherwise the callback comes from different server instance
+	dispatchCallback(session, owner, name, index1, index2, value);
 
       fprintf(output,
 	      "HTTP/1.0 200 OK\r\n" \
 	      "Content-Type: application/javascript\r\n" \
 	      "\r\n" \
-	      " sessionId = %d;" \
 	      " var topHead = document.getElementsByTagName('head').item(0); " \
 	      " var previousScript = document.getElementById('dispatch_callback_' + '%s'); " \
 	      " topHead.removeChild(previousScript);",
-	      session, counter);
-      // return almost empty javascript, sessionId is needed to make sure that the requests with the same content are not cached over multiple sessions
+	      counter);
+      // return almost empty javascript, contextId is needed to make sure that the requests with the same content are not cached over multiple sessions
 
       return true; // event was processed
     }
@@ -344,6 +349,7 @@ bool Dispatcher::processWeb( char* method,
       int         destinationIndex1;
       int         destinationIndex2;
       const char* counter = "";
+      long long int oldContextId = -1;
       for ( int i = 0; i < params.size(); i++ )
 	{
 	  if ( strcmp( params[i].first, "OWNER" ) == 0 )
@@ -362,19 +368,22 @@ bool Dispatcher::processWeb( char* method,
 	    destinationIndex2 = atoi(params[i].second);
 	  else if ( strcmp( params[i].first, "COUNTER" ) == 0 )
 	    counter = params[i].second;
+	  else if ( strcmp( params[i].first, "CONTEXT" ) == 0 )
+	    oldContextId = atoll(params[i].second);
 	}
-      dispatchDrop(session, owner, sourceName, sourceIndex1, sourceIndex1, destinationName, destinationIndex1, destinationIndex2);
+      
+      if ( oldContextId == _contextId ) // otherwise the callback comes from different server instance
+	dispatchDrop(session, owner, sourceName, sourceIndex1, sourceIndex1, destinationName, destinationIndex1, destinationIndex2);
 
       fprintf(output,
 	      "HTTP/1.0 200 OK\r\n" \
 	      "Content-Type: application/javascript\r\n" \
 	      "\r\n" \
-	      " sessionId = %d;" \
 	      " var topHead = document.getElementsByTagName('head').item(0); " \
 	      " var previousScript = document.getElementById('dispatch_drop_' + '%s'); " \
 	      " topHead.removeChild(previousScript);",
-	      session, counter);
-      // return almost empty javascript, sessionId is needed to make sure that the requests with the same content are not cached over multiple sessions
+	      counter);
+      // return almost empty javascript, contextId is needed to make sure that the requests with the same content are not cached over multiple sessions
 
       return true; // event was processed
     }
@@ -389,7 +398,20 @@ bool Dispatcher::processWeb( char* method,
 	      break;
 	    }
 	}
-
+      long long int oldContextId = -1;
+      for ( int i = 0; i < params.size(); i++ )
+	{
+	  if ( strcmp( params[i].first, "CONTEXT" ) == 0 )
+	    {
+	      oldContextId = atoll(params[i].second);
+	      break;
+	    }
+	}
+      if ( oldContextId != _contextId )
+	{
+	  oldTimeStamp = -1; // invalidate stamping if the context does not belong to current server
+	}
+      
       string buffer;
       long long int newTimeStamp;
       newTimeStamp = renderIncremental(session,oldTimeStamp,buffer);
@@ -397,13 +419,13 @@ bool Dispatcher::processWeb( char* method,
       fprintf(output,
 	      "HTTP/1.0 200 OK\r\n" \
 	      "Content-Type: application/javascript\r\n" \
-	      "\r\n nrPendingTimeouts = 0; if ((%lld > timestamp) || (sessionId != %d)) { sessionId = %d; %s ; timestamp=%lld; }; clearTimeout(handleWarning); setTimeout(updateFromDispatcher,100);",
+	      "\r\n nrPendingTimeouts = 0; if ((%lld > timestamp) || (contextId != %lld)) { %s ; contextId = %lld; timestamp=%lld; }; clearTimeout(handleWarning); setTimeout(updateFromDispatcher,100);",
 	      // avoid timestap moving backwards from out-of-order data
 	      // first javascript part is hardcoded
 	      newTimeStamp,
-	      session,
-	      session,
+	      _contextId,
 	      buffer.c_str(),
+	      _contextId,
 	      newTimeStamp ); // return a javascript which updates the divs
 
       return true; // event was processed

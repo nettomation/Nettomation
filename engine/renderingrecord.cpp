@@ -21,12 +21,11 @@
 
 #include "renderingrecord.h"
 
-RenderingRecord::RenderingRecord(WebContent* owner)
+RenderingRecord::RenderingRecord(WebContent* owner, long long int forceId)
 {
   static long long int idCounter = time(NULL);
-  idCounter++;
 
-  _uniqueId = idCounter;
+  _uniqueId = ( forceId >= 0 ) ? forceId : idCounter++;
   _owner = owner;
   _timestamp = -1;
 }

@@ -19,7 +19,7 @@
  * please visit http://nettomation.com
  */
 
-var sessionId = 0;
+var contextId = Math.floor(Math.random() * 2147483648);
 var eventCounter = 0;
 var refreshCounter = 0;
 var handleWarning = null;
@@ -34,7 +34,7 @@ function sendToDispatcher(owner,name,index1,index2,value)
     var auxScript = document.createElement('script');
     auxScript.src = "/dispatch_callback.js" + parameters
 	+ "&COUNTER=" + eventCounter 
-	+ "&SESSION=" + sessionId; // unique parameters to avoid caching;
+	+ "&CONTEXT=" + contextId; // unique parameters to avoid caching;
     auxScript.id = "dispatch_callback_" + eventCounter;
     topHead.appendChild(auxScript);
 }
@@ -75,7 +75,7 @@ function updateFromDispatcher()
     newScript.id = "dispatch_refresh_" + refreshCounter;
     newScript.src = "/dispatch_refresh.js?counter=" + refreshCounter 
 	+ "&TIMESTAMP=" + timestamp
-	+ "&SESSION=" + sessionId; // unique parameters to avoid caching
+	+ "&CONTEXT=" + contextId; // unique parameters to avoid caching
     newScript.defer = "defer";
 
     handleWarning = setTimeout(connectionLost,5000);
@@ -120,7 +120,7 @@ function dispatchDropEvent(event,owner,destination_name,destination_index1,desti
   var auxScript = document.createElement('script');
   auxScript.src = "/dispatch_drop.js" + parameters
 	+ "&COUNTER=" + eventCounter 
-	+ "&SESSION=" + sessionId; // unique parameters to avoid caching;
+	+ "&CONTEXT=" + contextId; // unique parameters to avoid caching;
   auxScript.id = "dispatch_drop_" + eventCounter;
   topHead.appendChild(auxScript);
 }

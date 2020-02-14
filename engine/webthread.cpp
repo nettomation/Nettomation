@@ -467,7 +467,7 @@ void WebThread::parseStream()
     }
   else
     {
-      int session = -1; // read the sessionId
+      int session = -1; // read the session id
       for ( size_t i = 0; i < fields.size(); i++ )
 	if ( strcmp(fields[i].first,"Cookie") == 0 )
 	  {

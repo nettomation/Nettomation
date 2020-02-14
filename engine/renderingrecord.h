@@ -38,7 +38,7 @@ class RenderingRecord {
   string                    _cache;
   long long int             _timestamp;
 
-  RenderingRecord(WebContent* owner);
+  RenderingRecord(WebContent* owner, long long int forceId = -1);
   ~RenderingRecord();
   void clearRecords();
   long long int uniqueId() const { return _uniqueId; }
