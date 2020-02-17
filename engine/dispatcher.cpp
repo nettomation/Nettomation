@@ -135,14 +135,26 @@ void Dispatcher::dispatchDrop(int session, const string& owner, const string& so
 
 long long int Dispatcher::renderIncremental(int session, long long int oldTimeStamp, string& buffer)
 {
-  //  SmartLock lock(_serializer); // avoid interplay between dispatchCallback and renderIncremental
-  long long int ts = getCurrentTimeStamp();
-  //  printf("Render incremental in: session=%d, oldTimeStamp=%lld\n", session, oldTimeStamp);
-  ostringstream stream(buffer);
-  _webTop->incrementalUpdate(stream,*_renderingTop,oldTimeStamp);
-  buffer = stream.str();
-  //  printf("Render incremental out: %s\n", buffer.c_str());
-  return ts;
+  int i = 0;
+  while (1) // long polling
+    {
+      i++;
+      //  SmartLock lock(_serializer); // avoid interplay between dispatchCallback and renderIncremental
+      long long int ts = getCurrentTimeStamp();
+      //  printf("Render incremental in: session=%d, oldTimeStamp=%lld\n", session, oldTimeStamp);
+      ostringstream stream(buffer);
+      _webTop->incrementalUpdate(stream,*_renderingTop,oldTimeStamp);
+      buffer = stream.str();
+      //  printf("Render incremental out: %s\n", buffer.c_str());
+      if ( !buffer.empty() )
+	{
+	  return ts;
+	}
+      if ( i > 1000 )
+	return ts;
+      usleep(1000);
+    }
+  
 }
 
 void Dispatcher::logout( int session )
