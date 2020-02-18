@@ -142,7 +142,7 @@ long long int Dispatcher::renderIncremental(int session, long long int oldTimeSt
       //  SmartLock lock(_serializer); // avoid interplay between dispatchCallback and renderIncremental
       long long int ts = getCurrentTimeStamp();
       //  printf("Render incremental in: session=%d, oldTimeStamp=%lld\n", session, oldTimeStamp);
-      ostringstream stream(buffer);
+      ostringstream stream;
       _webTop->incrementalUpdate(stream,*_renderingTop,oldTimeStamp);
       buffer = stream.str();
       //  printf("Render incremental out: %s\n", buffer.c_str());
