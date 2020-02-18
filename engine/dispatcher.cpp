@@ -150,9 +150,9 @@ long long int Dispatcher::renderIncremental(int session, long long int oldTimeSt
 	{
 	  return ts;
 	}
-      if ( i > 1000 )
+      if ( i > 100 )
 	return ts;
-      usleep(1000);
+      usleep(10000);
     }
   
 }
