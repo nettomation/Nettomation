@@ -33,6 +33,7 @@ void GenericThread::start()
 void* GenericThread::_launcher( void* genericThread )
 {
   ((GenericThread*)genericThread)->run();
+  return NULL;
 }
 
 void GenericThread::cancel()
