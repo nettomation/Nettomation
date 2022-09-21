@@ -207,6 +207,7 @@ bool Dispatcher::processWeb( char* method,
 	      fprintf(output,
 		      "HTTP/1.0 200 OK\r\n" \
 		      "Content-Type: application/javascript\r\n" \
+		      "Pragma: no-cache\r\n" \
 		      "\r\n" \
 		      "window.location.replace(\"/\")");
 
@@ -266,6 +267,7 @@ bool Dispatcher::processWeb( char* method,
       fprintf(output,
 	      "HTTP/1.0 200 OK\r\n" \
 	      "Content-Type: text/html\r\n" \
+	      "Pragma: no-cache\r\n" \
 	      "\r\n");
 
       // send the main page here
@@ -342,6 +344,7 @@ bool Dispatcher::processWeb( char* method,
       fprintf(output,
 	      "HTTP/1.0 200 OK\r\n" \
 	      "Content-Type: application/javascript\r\n" \
+	      "Pragma: no-cache\r\n" \
 	      "\r\n" \
 	      " var topHead = document.getElementsByTagName('head').item(0); " \
 	      " var previousScript = document.getElementById('dispatch_callback_' + '%s'); " \
@@ -390,6 +393,7 @@ bool Dispatcher::processWeb( char* method,
       fprintf(output,
 	      "HTTP/1.0 200 OK\r\n" \
 	      "Content-Type: application/javascript\r\n" \
+	      "Pragma: no-cache\r\n" \
 	      "\r\n" \
 	      " var topHead = document.getElementsByTagName('head').item(0); " \
 	      " var previousScript = document.getElementById('dispatch_drop_' + '%s'); " \
@@ -431,6 +435,7 @@ bool Dispatcher::processWeb( char* method,
       fprintf(output,
 	      "HTTP/1.0 200 OK\r\n" \
 	      "Content-Type: application/javascript\r\n" \
+	      "Pragma: no-cache\r\n" \
 	      "\r\n nrPendingTimeouts = 0; if ((%lld > timestamp) || (contextId != %lld)) { %s ; contextId = %lld; timestamp=%lld; }; clearTimeout(handleWarning); setTimeout(updateFromDispatcher,100);",
 	      // avoid timestap moving backwards from out-of-order data
 	      // first javascript part is hardcoded
